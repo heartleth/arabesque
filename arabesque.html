@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>arabesque generator</title>
+        <style>
+        html, body {
+            overflow: hidden;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        canvas {
+            position:fixed;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+        }
+        
+        .sidenav {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            z-index: 1;
+            top: 0;
+            left: 0;
+            background-color: #111;
+            overflow-x: hidden;
+            padding-top: 60px;
+            transition: 0.5s;
+        }
+        
+        .sidenav a {
+            text-decoration: none;
+        }
+        
+        .saveBtn {
+            position: absolute;
+            top: 1px;
+            left: 80px;
+        }
+
+        .sidenav a:hover {
+            color: #f1f1f1;
+        }
+
+        .sidenav .closebtn {
+            position: absolute;
+            top: 0;
+            right: 8px;
+            font-size: 36px;
+            margin-left: 50px;
+        }
+        .openedit {
+            position: absolute;
+            z-index: 3;
+            bottom: 10px;
+            right: 10px;
+            width: 110px;
+            height: 35px;
+            font-size: 20px;
+            border-radius: 8px;
+            background-color: rgb(56, 56, 56);
+            color: #e0e0e0;
+            border: unset;
+            opacity: 0.8;
+            box-shadow: 0px 0px 16px black;
+        }
+        .openedit:hover {
+            opacity: 1;
+        }
+        #edit * {
+            margin: 10px;
+            color: #fbfbfb;
+            font-size: 25px;
+            font-weight: lighter;
+        }
+        #edit input[type="range"] {
+            width: 224px;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        #edit input[type="number"] {
+            -moz-appearance: textfield;
+            background: none;
+            border: none;
+            display: inline-block;
+            max-width: 50px;
+            color: #fbfbfb;
+            font-size: 25px;
+            font-weight: lighter;
+        }
+        #edit input[type="number"]:focus {
+            background: rgb(0, 0, 0);
+            outline: none;
+        }
+        #edit {
+            overflow: hidden;
+        }
+        .colorListElement {
+            background-color: #0a0a0a;
+            margin: 4px;
+            width: 224px;
+            border-radius: 8px;
+            border: solid 1px #fbfbfb;
+            display: flex;
+            justify-content: left;
+        }
+        .colorListElement>input {
+            margin-left: auto !important;
+        }
+        .colorListElement>button {
+            font-size: 30px !important;
+            background: none;
+            border: none;
+        }
+        .colorListElement>input:focus {
+            outline: none;
+        }
+        .colorListElement>button:hover {
+            cursor: pointer;
+        }
+        input[type="color"] {
+            padding: 0px;
+            border: none;
+            background-color: rgba(0,0,0,0);
+            height: 32px;
+        }
+        .colorListElement>input[type="color"] {
+            height: 32px;
+            width: 80px;
+        }
+        .textbtn {
+            font-size: 30px;
+            background: none;
+            border: none;
+        }
+        .textbtn:focus {
+            outline: none;
+        }
+        .textbtn:hover {
+            cursor: pointer;
+        }
+        .addptrn {
+            width: 224px;
+            border-radius: 8px;
+            border: solid 1px #fbfbfb;
+            transition-duration: 0.5s;
+        }
+        .addptrn:hover {
+            background: black;
+        }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="arabesque.js"></script></head>
+    <body>
+        <div id="edit" class="sidenav">
+            <a href="javascript:0" download="arabesque.png" class="saveBtn">Save</a>
+            <a href="javascript:0" class="closebtn" onclick="closeEdit()">&times;</a>
+            <label for="edges">Points: <input type="number" id="edges">px</label><br>
+            <input type="range" min="5" max="20" step="1" id="edgesInput" width="250px">
+
+            <label for="dist">Distance: <input type="number" id="dist">px</label><br>
+            <input type="range" min="200" max="2000" step="1" id="distInput" width="250px">
+
+            <label for="width">Line width: <input type="number" id="width">px</label><br>
+            <input type="range" min="0" max="20" step="1" id="widthInput" width="250px">
+
+            <label for="len">Radius: <input type="number" id="len">px</label><br>
+            <input type="range" min="20" max="300" step="1" id="lenInput" width="250px">
+            
+            <div style="width: 400px; margin: 0px;">
+                <label for="centerColor">Center color: </label>
+                <input type="color" id="centerColorInput" width="250px"><br>
+                <label for="bgColor">Base color: </label>
+                <input type="color" id="bgColorInput" width="250px"><br><br>
+                <label>Pattern colors: </label>
+                <div style="margin: 0px;overflow-y:scroll;height: 400px;" id="colorListBox">
+                    <div id="colorList" style="margin: 0px;"></div>
+                </div>
+            </div>
+        </div>
+        <button class="openedit" onclick="openEdit()">Open edit</button>
+        <canvas></canvas>
+        <script>
+            let props = {
+                'width': 10,
+                'edges': 8,
+                'dist': 360,
+                'len': 72,
+                'centerColor': '#ffffff',
+                'bgColor': '#fafaf5'
+            };
+            let fillPattern = (localStorage.getItem('fillPattern')||'#FFA500,#ffff00').split(',');
+            localStorage.setItem('fillPattern', fillPattern);
+            
+            let canvas = document.querySelector('canvas');
+            document.querySelector('.saveBtn').onclick = ()=>{
+                var image = canvas.toDataURL("image/jpg");
+                document.querySelector('.saveBtn').href = image;
+            }
+            function closeEdit() {
+                document.getElementById('edit').style.left='-250px';
+            }
+            function openEdit() {
+                document.getElementById('edit').style.left='0px';
+            }
+            function renderColorListView() {
+                let i = 0;
+                for (const color of fillPattern) {
+                    let colorElement = document.createElement('div');
+                    colorElement.classList.add('colorListElement');
+                    colorElement.innerHTML = `
+                        <span draggable="true" ondragstart="dx=dragging=${i};" ondragstop="dragging=-1;" ondrag="moveColorElem(${i}, ...arguments, this)">col ${i+1}:</span>
+                        <input type="color" onchange="changeColor(${i}, this.value)" value="${color}">
+                        <button class="textbtn" onclick="popColor(${i})">&times;</button>
+                    `;
+                    document.querySelectorAll('#colorList')[0].append(colorElement);
+                    i++;
+                }
+                
+                document.querySelectorAll('#colorList')[0].innerHTML += `<button class="textbtn addptrn" onclick="addColor()">+</button>`;
+            }
+            const anchorElem = document.getElementById('colorListBox');
+            let dragging = -1;
+            let dx = -1;
+            function moveColorElem(elem, args) {
+                if (dragging==elem) {
+                    if (args.y > 0){
+                        let pos = parseInt((args.y-anchorElem.offsetTop+anchorElem.scrollTop)/70);
+                        if (pos<0) pos = 0;
+                        if (pos>=fillPattern.length) pos = fillPattern.length-1;
+                        if (dx != pos) {
+                            let tmp = fillPattern[dx];
+                            fillPattern[dx] = fillPattern[pos];
+                            fillPattern[pos] = tmp;
+                            document.querySelectorAll('#colorList>.colorListElement>input').forEach((e, i)=>{
+                                e.value=fillPattern[i];
+                            });
+                            localStorage.setItem('fillPattern', fillPattern);
+                            console.log(pos);
+                            render();
+                        }
+                        dx=pos;
+                    }
+                }
+            }
+            function addColor() {
+                fillPattern.push('#' + (Math.floor(Math.random()*16777215).toString(16)+'ff').slice(0,6));
+                localStorage.setItem('fillPattern', fillPattern);
+                document.querySelector('#colorList').innerHTML='';
+                renderColorListView();
+                render();
+            }
+            function popColor(idx) {
+                localStorage.setItem('fillPattern', fillPattern.splice(idx, 1));
+                document.querySelector('#colorList').innerHTML='';
+                renderColorListView();
+                render();
+            }
+            function changeColor(idx, how) {
+                fillPattern[idx] = how;
+                document.querySelector('#colorList').innerHTML='';
+                renderColorListView();
+                render();
+            }
+            const render = ()=>{
+                canvas.width = document.body.clientWidth;
+                let x = document.body.clientWidth/2;
+                canvas.height = window.innerHeight;
+                let y = window.innerHeight/2;
+                center = [x,y];
+                ctx=canvas.getContext('2d');
+                ctx.fillStyle=props.bgColor;
+                ctx.fillRect(0, 0, 2*x, 2*y);
+                const e = draw(x, y, props.edges, props.len, props.dist, props.width);
+                e.forEach(e=>{
+                    const cols = Array(Math.floor((props.edges-5)/(2*fillPattern.length))+1).fill(fillPattern).flat().slice(0, Math.floor((props.edges-5)/2))
+                    e.decoration(cols);
+                    e.star(props.centerColor);
+                });
+                ctx.fillStyle='rgba(0,0,0,0.5)';
+                ctx.font='24px "Times New Roman"';
+                ctx.fillText('Made by arabesque generetor, MIT License', x-200, 30);
+            };
+
+            window.onload = ()=>{
+                for (const name in props) {
+                    if (localStorage.getItem(name)===null) {
+                        localStorage.setItem(name, props[name]);
+                    }
+                    else {
+                        props[name] = localStorage.getItem(name);
+                    }
+                    document.querySelector(`#${name}Input`).value = props[name];
+                    document.querySelector('#'+name).value = props[name];
+                    document.querySelector(`#${name}Input`).onchange = e=>{
+                        props[name] = e.target.value;
+                        document.querySelector('#'+name).value = props[name];
+                        localStorage.setItem(name, props[name])
+                        render();
+                    }
+                    document.querySelector(`#`+name).onchange = e=>{
+                        props[name] = e.target.value;
+                        document.querySelector('#'+name+'Input').value = props[name];
+                        localStorage.setItem(name, props[name])
+                        render();
+                    }
+                }
+                renderColorListView();
+                render();
+            };
+            window.onresize = render;
+        </script>
+        <span id="centerColor" style="display: none;"></span><br>
+        <span id="bgColor" style="display: none;"></span>
+    </body>
+</html>
