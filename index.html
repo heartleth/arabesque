@@ -265,6 +265,7 @@
             }
             function changeColor(idx, how) {
                 fillPattern[idx] = how;
+                localStorage.setItem('fillPattern', fillPattern);
                 document.querySelector('#colorList').innerHTML='';
                 renderColorListView();
                 render();
