@@ -175,7 +175,9 @@
                 <label for="centerColor">Center color: </label>
                 <input type="color" id="centerColorInput" width="250px"><br>
                 <label for="bgColor">Base color: </label>
-                <input type="color" id="bgColorInput" width="250px"><br><br>
+                <input type="color" id="bgColorInput" width="250px"><br>
+                <label for="lineColor">Line color: </label>
+                <input type="color" id="lineColorInput" width="250px"><br><br>
                 <label>Pattern colors: </label>
                 <div style="margin: 0px;overflow-y:scroll;height: 400px;" id="colorListBox">
                     <div id="colorList" style="margin: 0px;"></div>
@@ -191,7 +193,8 @@
                 'dist': 360,
                 'len': 72,
                 'centerColor': '#ffffff',
-                'bgColor': '#fafaf5'
+                'bgColor': '#fafaf5',
+                'lineColor': '#000000'
             };
             let fillPattern = (localStorage.getItem('fillPattern')||'#FFA500,#ffff00').split(',');
             localStorage.setItem('fillPattern', fillPattern);
@@ -275,7 +278,7 @@
                 ctx=canvas.getContext('2d');
                 ctx.fillStyle=props.bgColor;
                 ctx.fillRect(0, 0, 2*x, 2*y);
-                const e = draw(x, y, props.edges, props.len, props.dist, props.width);
+                const e = draw(x, y, props.edges, props.len, props.dist, props.width, props.lineColor);
                 e.forEach(e=>{
                     const cols = Array(Math.floor((props.edges-5)/(2*fillPattern.length))+1).fill(fillPattern).flat().slice(0, Math.floor((props.edges-5)/2))
                     e.decoration(cols);
@@ -316,5 +319,6 @@
         </script>
         <span id="centerColor" style="display: none;"></span><br>
         <span id="bgColor" style="display: none;"></span>
+        <span id="lineColor" style="display: none;"></span>
     </body>
 </html>

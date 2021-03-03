@@ -1,4 +1,4 @@
-function draw(x, y, points, len, dist, width) {
+function draw(x, y, points, len, dist, width, lcol) {
     let canvas = document.querySelector('canvas');
     let ctx = canvas.getContext('2d');
     
@@ -19,12 +19,15 @@ function draw(x, y, points, len, dist, width) {
         
         ctx.beginPath();
         ctx.lineWidth=width;
+        ctx.strokeStyle=lcol;
         for (let i=0;i<points;i++) {
             const angle = theta*i;
             const origin = toward(angle, len);
             
-            ctx.moveTo(...absolute(v2dadd(origin, toward(angle-90, 5000)), ...from));
-            ctx.lineTo(...absolute(v2dadd(origin, toward(angle+90, 5000)), ...from));
+            if (width>0) {
+                ctx.moveTo(...absolute(v2dadd(origin, toward(angle-90, 5000)), ...from));
+                ctx.lineTo(...absolute(v2dadd(origin, toward(angle+90, 5000)), ...from));
+            }
         }
         ctx.stroke();
         
