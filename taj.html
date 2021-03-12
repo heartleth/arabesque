@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html,body{overflow:hidden;margin:0 !important;padding:0 !important;}
+            canvas{position:fixed;left:0;top:0;width:100%;height:100%;}
+        </style>
+        <title>Document</title>
+        <script src="./writer.js"></script>
+        <script src="./letter.js"></script>
+        <script src="./chars.js"></script>
+    </head>
+    <body>
+        <p style="text-align: center;"></p>
+        <canvas></canvas>
+        <script>
+            const canvas = document.querySelector('canvas');
+            const cursor = document.querySelector('#cursor');
+            let sentence = [];
+            let ctx = canvas.getContext('2d');
+            let WIDTH = 200;
+            let x, y;
+
+            let pathMap = [];
+
+            const drawSentence = () => {
+                pathMap = [];
+                let strokeX = x;
+                let mode = 'initial';
+                let i = 0;
+                for (const letter of sentence) {
+                    if (mode == 'initial' && sentence.length - 1 == i) {
+                        mode = 'isolated';
+                    }
+                    let info = getLetter(0, letter, mode, false);
+                    strokeX += info.move / 2;
+                    mode = info.mode == 'medial' && i == sentence.length - 2 ? 'final' : info.mode;
+                    i++;
+                }
+
+                let pth = new Path2D();
+                mode = 'initial';
+                i = 0;
+
+                pth.moveTo(2 * x, y);
+                pth.lineTo(strokeX, y);
+                for (const letter of sentence) {
+                    if (mode == 'initial' && (sentence.length - 1 == i)) {
+                        mode = 'isolated';
+                    }
+                    let next = getLetter({
+                        x: strokeX,
+                        y
+                    }, letter, mode);
+                    pathMap.push(next);
+                    pth.addPath(next.path);
+                    for (const dot of next.dots) {
+                        ctx.lineWidth = 15;
+                        ctx.beginPath();
+                        ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
+                        ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                        ctx.stroke();
+                    }
+                    strokeX -= next.move;
+                    ++i;
+                    pathMap[pathMap.length-1]._mode = mode;
+                    mode = next.mode == 'medial' && (i == sentence.length - 1 || sentence[i+1] == ' ') ? 'final' : next.mode;
+                }
+                pth.moveTo(strokeX, y);
+                pth.lineTo(0, y);
+
+                ctx.lineWidth = 10;
+                ctx.stroke(pth);
+            }
+            const render = async () => {
+                canvas.width = document.body.clientWidth;
+                flX = x = document.body.clientWidth / 2;
+                canvas.height = window.innerHeight;
+                flY = y = window.innerHeight / 2;
+                ctx = canvas.getContext('2d');
+
+                drawSentence();
+            };
+
+            let isMouseOn = false;
+            let mouseBegin = 0;
+            let mouseBeginAt = -1;
+            let mouseEnd = 0;
+            let flX, fly;
+            let interval;
+            let ex, ey;
+            let pullWidth = 100;
+
+            canvas.onmousedown = e => {
+                drawSentence();
+                mouseBeginAt = -1;
+                isMouseOn = true;
+                mouseBegin = {
+                    x: flX = e.x,
+                    y: flY = e.y
+                };
+                flX = e.x;
+                flY = e.y;
+                interval = setInterval(() => {
+                    flX += (ex - flX) * 0.4;
+                    flY += (ey - flY) * 0.4;
+                    ctx.clearRect(0, 0, 9999, 9999);
+                    let strokeX = x + pathMap.reduce((a, b) => a + b.move, 0) / 2;
+                    let i = 0;
+                    let dots;
+
+                    ctx.beginPath();
+                    ctx.moveTo(2 * x, y);
+                    ctx.lineTo(strokeX, y);
+                    ctx.stroke();
+                    for (const letter of pathMap) {
+                        ctx.lineWidth = 10;
+                        if (strokeX > mouseBegin.x && mouseBegin.x > strokeX - letter.move) {
+                            mouseBegin.x = (strokeX - 0.5 * letter.move);
+                            mouseBeginAt = i;
+                            pullWidth = letter.move / 2;
+
+                            const alphabet = getAlphabet(mouseBeginAt, sentence, flX - mouseBegin.x, mouseBegin.y - flY);
+                            const mode = (pathMap[i] ?? {})._mode == 'initial'
+                                ? (i == sentence.length - 1 || sentence[i+1]==' ' ? 'isolated' : 'initial')
+                                : (letter.mode == 'medial' || letter._mode == 'final') && (i == sentence.length - 1 || sentence[i+1]==' ') ? 'final' : letter.mode;
+
+                            const info = getLetter({x: strokeX, y}, alphabet, mode);
+                            ctx.setLineDash([10, 15]);
+                            ctx.stroke(alphabet ? info.path : letter.path);
+                            ctx.setLineDash([]);
+                            dots = alphabet ? info.dots : letter.dots;
+                        } else {
+                            ctx.stroke(letter.path);
+                            dots = letter.dots;
+                        }
+
+                        for (const dot of dots) {
+                            ctx.lineWidth = 15;
+                            ctx.beginPath();
+                            ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
+                            ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                            ctx.stroke();
+                        }
+                        strokeX -= letter.move;
+                        i++;
+                    }
+                    ctx.beginPath();
+                    ctx.moveTo(strokeX, y);
+                    ctx.lineTo(0, y);
+                    ctx.lineWidth = 10;
+                    ctx.stroke();
+
+                    if (mouseBeginAt == -1) {
+                        const alphabet = getAlphabet(-1, sentence, flX - mouseBegin.x, mouseBegin.y - flY);
+                        ctx.setLineDash([10, 15]);
+                        const info = getLetter({x: strokeX, y}, alphabet, (pathMap[pathMap.length-1] ?? {mode:'initial'}).mode == 'initial' ? 'isolated' : 'final');
+                        ctx.stroke(info.path);
+                        ctx.lineWidth = 15;
+                        for (const dot of info.dots) {
+                            ctx.beginPath();
+                            ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
+                            ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                            ctx.stroke();
+                        }
+                        ctx.lineWidth = 10;
+                        ctx.setLineDash([]);
+                    }
+                }, 16);
+            }
+            canvas.onmouseup = e => {
+                isMouseOn = false;
+                mouseEnd = {
+                    x: e.x,
+                    y: e.y
+                };
+                clearInterval(interval);
+
+                if (!(Math.abs(mouseEnd.x - mouseBegin.x) < 10 && Math.abs(mouseEnd.y - mouseBegin.y) < 10)) {
+                    const offsetX = mouseEnd.x - mouseBegin.x;
+                    const offsetY = mouseBegin.y - mouseEnd.y;
+                    const alphabet = getAlphabet(mouseBeginAt, sentence, offsetX, offsetY);
+                    if (alphabet !== undefined) {
+                        if (mouseBeginAt == -1) {
+                            sentence.push(alphabet);
+                        } else {
+                            sentence[mouseBeginAt] = alphabet;
+                        }
+                    }
+                }
+
+                ctx.clearRect(0, 0, 9999, 9999);
+                drawSentence();
+                document.querySelector('p').innerText = sentence.map(e => chars[e]).join('');
+            }
+            canvas.onmousemove = e => {
+                if (isMouseOn) {
+                    ex = e.x;
+                    ey = e.y;
+                }
+            };
+
+            window.onload = () => {
+                render();
+            }
+            window.onresize = () => {
+                render();
+            };
+            window.onkeydown = e => {
+                if (e.code == 'Space') {
+                    sentence.push(' ');
+                    render();
+                }
+                if (e.code == 'Backspace') {
+                    sentence.pop();
+                    render();
+                }
+            };
+        </script>
+    </body>
+</html>
