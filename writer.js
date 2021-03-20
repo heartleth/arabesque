@@ -17,6 +17,12 @@ function getAlphabet(mouseBeginAt, sentence, offsetX, offsetY) {
         else if (sentence[mouseBeginAt] == 'l') {
             return 'w';
         }
+        else if (sentence[mouseBeginAt] == 'h-') {
+            return 'ain';
+        }
+        else if (sentence[mouseBeginAt] == 'kh') {
+            return 'gain';
+        }
     }
     if (offsetX > 30 && offsetY < 450 && offsetY > 0) {
         if (mouseBeginAt == -1) {
@@ -84,6 +90,12 @@ function getAlphabet(mouseBeginAt, sentence, offsetX, offsetY) {
         }
         else if (sentence[mouseBeginAt] == 'h') {
             return 'tm';
+        }
+        else if (sentence[mouseBeginAt] == 'k') {
+            return 'gain';
+        }
+        else if (sentence[mouseBeginAt] == 'ain') {
+            return 'gain';
         }
     }
     if (offsetX > 60 && offsetY < -20) {

@@ -318,6 +318,34 @@ const getLetter = (st, letter, mode, noPath = false) => {
             nextMode = 'initial';
         }
     }
+    if (letter == 'ain' || letter == 'gain') {
+        if (mode == 'final' || mode == 'isolated') {
+            m = 200;
+            ret.moveTo(st.x - 40, y - 80);
+            ret.bezierCurveTo(st.x - 150, y - 130, st.x - 190, y, st.x, y);
+            ret.bezierCurveTo(st.x - 220, y - 20, st.x - 220, y + 250, st.x + 10, y + 135);
+            if (mode == 'final') {
+                ret.moveTo(st.x - 70, y - 10);
+                ret.lineTo(st.x - 50, y - 85);
+            }
+        }
+        if (mode == 'medial' || mode == 'initial') {
+            m = 150;
+            ret.moveTo(st.x - 40, y - 80);
+            ret.bezierCurveTo(st.x - 150, y - 100, st.x - 200, y, st.x, y);
+            if (mode == 'medial') {
+                ret.moveTo(st.x - 55, y - 80);
+                ret.bezierCurveTo(st.x - 70, y + 5, st.x - 120, y, st.x - 150, y);
+            }
+            else {
+                ret.moveTo(st.x, y);
+                ret.lineTo(st.x - 150, y);
+            }
+        }
+        if (letter == 'gain') {
+            dots.push([st.x - 80, st.y - 115]);
+        }
+    }
     if (letter == ' ') {
         m = 40;
         nextMode = 'initial';
