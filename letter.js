@@ -1,6 +1,34 @@
-const getLetter = (st, letter, mode, noPath = false) => {
+class pathtimes {
+    constructor (n, x, y) {
+        this.p2d = new Path2D();
+        this.times = n;
+        this.x = x;
+        this.y = y;
+    }
+    moveTo (x, y) {
+        this.p2d.moveTo((x - this.x)*this.times+this.x, (y - this.y)*this.times+this.y);
+    }
+    lineTo (x, y) {
+        this.p2d.lineTo((x - this.x)*this.times+this.x, (y - this.y)*this.times+this.y);
+    }
+    bezierCurveTo (x1, y1, x2, y2, x3, y3) {
+        this.p2d.bezierCurveTo(
+            (x1 - this.x)*this.times + this.x,
+            (y1 - this.y)*this.times + this.y,
+            (x2 - this.x)*this.times + this.x,
+            (y2 - this.y)*this.times + this.y,
+            (x3 - this.x)*this.times + this.x,
+            (y3 - this.y)*this.times + this.y
+        );
+    }
+    path () {
+        return this.p2d;
+    }
+}
+
+const getLetter = (st, letter, mode, noPath = false, times = 1) => {
     let y = st.y;
-    let ret = new Path2D();
+    let ret = new pathtimes(times, st.x, st.y);
     let nextMode = 'medial';
     let dots = [];
     let m = 200;
@@ -351,17 +379,21 @@ const getLetter = (st, letter, mode, noPath = false) => {
         nextMode = 'initial';
     }
     
+    for (const idx in dots) {
+        dots[idx] = [(dots[idx][0]-st.x)*times+st.x, (dots[idx][1]-st.y)*times+st.y];
+    }
+
     if (!noPath) {
         return {
-            path: ret,
+            path: ret.path(),
             dots,
             mode: nextMode,
-            move: m
+            move: m * times
         };
     } else {
         return {
             mode: nextMode,
-            move: m
+            move: m * times
         };
     }
 }
