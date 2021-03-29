@@ -98,6 +98,7 @@
             let moving = false;
 
             canvas.onmousedown = canvas.ontouchstart = e => {
+                console.log(e);
                 drawSentence();
                 mouseBeginAt = -1;
                 isMouseOn = true;
