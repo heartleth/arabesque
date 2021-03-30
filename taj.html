@@ -14,8 +14,8 @@
                 margin-left: 8px;
                 outline: none;
             }
-            button:hover {
-                background-color: rgb(149, 149, 149);
+            button:active {
+                background-color: rgb(160, 160, 160);
             }
         </style>
         <title>Document</title>
@@ -27,8 +27,8 @@
     <body>
         <button onclick="sentence.push(' ');render();">space</button>
         <button onclick="sentence.pop();render();">erase</button>
-        <button onclick="canvasscrollX+=10;render();">&larr;</button>
-        <button onclick="canvasscrollX-=10;render();">&rarr;</button>
+        <button onclick="canvasscrollX+=80;render();">&larr;</button>
+        <button onclick="canvasscrollX-=80;render();">&rarr;</button>
         <p style="text-align: center;"></p>
         <canvas></canvas>
         <script>
