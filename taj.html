@@ -56,10 +56,10 @@
                     pathMap.push(next);
                     pth.addPath(next.path);
                     for (const dot of next.dots) {
-                        ctx.lineWidth = 15;
+                        ctx.lineWidth = 7;
                         ctx.beginPath();
-                        ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
-                        ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                        ctx.moveTo(dot[0] + 2.5, dot[1] + 2.5);
+                        ctx.lineTo(dot[0] - 2.5, dot[1] - 2.5);
                         ctx.stroke();
                     }
                     strokeX -= next.move;
@@ -83,7 +83,7 @@
                 canvas.height = window.innerHeight;
                 flY = y = window.innerHeight / 2;
                 ctx = canvas.getContext('2d');
-                if (y < 250) {
+                if (y < 400) {
                     zoom = y/250;
                 }
                 drawSentence();
@@ -150,10 +150,10 @@
                         }
 
                         for (const dot of dots) {
-                            ctx.lineWidth = 15;
+                            ctx.lineWidth = 7;
                             ctx.beginPath();
-                            ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
-                            ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                            ctx.moveTo(dot[0] + 2.5, dot[1] + 2.5);
+                            ctx.lineTo(dot[0] - 2.5, dot[1] - 2.5);
                             ctx.stroke();
                         }
                         strokeX -= letter.move;
@@ -170,11 +170,11 @@
                         ctx.setLineDash([10, 15]);
                         const info = getLetter({x: strokeX, y}, alphabet, (pathMap[pathMap.length-1] ?? {mode:'initial'}).mode == 'initial' ? 'isolated' : 'final', false, zoom);
                         ctx.stroke(info.path);
-                        ctx.lineWidth = 15;
+                        ctx.lineWidth = 7;
                         for (const dot of info.dots) {
                             ctx.beginPath();
-                            ctx.moveTo(dot[0] + 5.5, dot[1] + 5.5);
-                            ctx.lineTo(dot[0] - 5.5, dot[1] - 5.5);
+                            ctx.moveTo(dot[0] + 2.5, dot[1] + 2.5);
+                            ctx.lineTo(dot[0] - 2.5, dot[1] - 2.5);
                             ctx.stroke();
                         }
                         ctx.lineWidth = width;
