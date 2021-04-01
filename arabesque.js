@@ -61,9 +61,6 @@ function draw(x, y, points, len, dist, width, lcol) {
                 ctx.fillStyle=color;
                 ctx.fill();
             },
-            bridges: ()=>{
-                
-            },
             decoration: (colors)=>{
                 if (points>6) {
                     triangles(points, edge-len, pit, edge, 0, theta, 90-theta/2, colors);

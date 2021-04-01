@@ -102,7 +102,6 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
             m = 100;
             ret.moveTo(st.x - 3, y - 200);
             ret.lineTo(st.x - 3, y);
-            ret.moveTo(st.x - 3, y);
             ret.bezierCurveTo(st.x - 3, y + 60, st.x - 70, y + 25, st.x - 100, y);
         }
     }
@@ -134,27 +133,27 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
         if (mode == 'final' || mode == 'isolated') {
             ret.moveTo(st.x - 3, y - 50);
             ret.bezierCurveTo(st.x + 38, y + 35, st.x - 70, y, st.x - 90, y);
-            ret.moveTo(st.x - 78, y - 50);
+            ret.bezierCurveTo(st.x - 70, y - 20, st.x - 70, y - 20, st.x - 78, y - 50);
             ret.bezierCurveTo(st.x - 50, y + 35, st.x - 200, y + 20, st.x - 150, y - 50);
             if (letter == 'sh') {
                 dots.push([st.x - 75 + 12, st.y - 70]);
                 dots.push([st.x - 75 - 12, st.y - 70]);
                 dots.push([st.x - 75, st.y - 84]);
             }
-            ret.moveTo(st.x - 150, y - 2);
+            ret.bezierCurveTo(st.x - 170, st.y - 20, st.x - 160, st.y - 20, st.x - 150, y - 2);
             ret.bezierCurveTo(st.x - 110, y + 135, st.x - 340, y + 135, st.x - 300, y + 40);
         }
         if (mode == 'initial' || mode == 'medial') {
             ret.moveTo(st.x - 3, y - 50);
             ret.bezierCurveTo(st.x + 38, y + 35, st.x - 70, y, st.x - 90, y);
-            ret.moveTo(st.x - 78, y - 50);
+            ret.bezierCurveTo(st.x - 70, y - 20, st.x - 70, y - 20, st.x - 78, y - 50);
             ret.bezierCurveTo(st.x - 50, y + 35, st.x - 200, y + 20, st.x - 150, y - 50);
             if (letter == 'sh') {
                 dots.push([st.x - 75 + 12, st.y - 70]);
                 dots.push([st.x - 75 - 12, st.y - 70]);
                 dots.push([st.x - 75, st.y - 84]);
             }
-            ret.moveTo(st.x - 150, y);
+            ret.bezierCurveTo(st.x - 170, st.y - 20, st.x - 160, st.y - 20, st.x - 150, y - 2);
             ret.lineTo(st.x - 200, y);
         }
     }
@@ -293,7 +292,6 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
             m = 190;
             ret.moveTo(st.x - 180, y - 80);
             ret.bezierCurveTo(st.x - 100, y - 80, st.x - 100, y, st.x, y);
-            ret.moveTo(st.x, y);
             ret.lineTo(st.x - 190, y);
             if (letter == 'j') {
                 dots.push([st.x - 100, y + 30]);
@@ -308,7 +306,7 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
         if (mode == 'isolated' || (mode=='initial' && letter == 'tm')) {
             ret.moveTo(st.x - 60, y - 50);
             ret.bezierCurveTo(st.x - 240, y + 90, st.x + 120, y + 90, st.x - 60, y - 50);
-            ret.moveTo(st.x - 63, y - 50);
+            ret.lineTo(st.x - 63, y - 50);
             ret.lineTo(st.x - 57, y - 50);
             if (letter == 'tm') {
                 dots.push([st.x - 40, y - 70]);
@@ -320,7 +318,7 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
             m = 100;
             ret.moveTo(st.x, y + 5);
             ret.lineTo(st.x, y - 100);
-            ret.moveTo(st.x, y - 90);
+            ret.lineTo(st.x, y - 90);
             ret.bezierCurveTo(st.x - 150, y - 80, st.x - 80, y + 60, st.x, y - 30);
             if (letter == 'tm') {
                 dots.push([st.x - 10, y - 120]);
@@ -331,7 +329,7 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
             m = 200;
             ret.moveTo(st.x - 180, y - 70);
             ret.bezierCurveTo(st.x - 100, y - 110, st.x + 70, y - 10, st.x - 40, y);
-            ret.moveTo(st.x - 40, y);
+            ret.lineTo(st.x - 40, y);
             ret.lineTo(st.x - 100, y);
             ret.bezierCurveTo(st.x - 150, y, st.x - 150, y - 70, st.x - 120, y - 70);
             ret.bezierCurveTo(st.x - 50, y - 70, st.x - 50, y, st.x - 200, y);
@@ -382,7 +380,6 @@ const getLetter = (st, letter, mode, noPath = false, times = 1) => {
     for (const idx in dots) {
         dots[idx] = [(dots[idx][0]-st.x)*times+st.x, (dots[idx][1]-st.y)*times+st.y];
     }
-
     if (!noPath) {
         return {
             path: ret.path(),
